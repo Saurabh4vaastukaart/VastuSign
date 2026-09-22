@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/capture_screenshots.yml
       - test/screenshot_test.dart
+      - lib/src/features/analysis/presentation/category_page.dart
   workflow_dispatch:
 
 jobs:
