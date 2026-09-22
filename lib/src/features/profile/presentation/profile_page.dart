@@ -418,3 +418,8 @@ class _SettingsTile extends StatelessWidget {
       leading: Icon(icon, color: AppColors.gold),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(subtitle),
+      trailing: const Icon(Icons.chevron_right_rounded),
+      onTap: onTap,
+    );
+  }
+}
