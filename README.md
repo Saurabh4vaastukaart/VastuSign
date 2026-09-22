@@ -22,7 +22,7 @@ buttons become active only in builds configured with a deployed API URL.
 
 ## Build Android locally
 
-Use Flutter 3.35.4 and Java 17:
+Use the current stable Flutter release with Dart 3.10+ and Java 17:
 
 ```bash
 flutter create --platforms=android --org com.vastusign --project-name vastusign .
