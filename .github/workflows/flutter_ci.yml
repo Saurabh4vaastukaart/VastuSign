@@ -32,7 +32,9 @@ jobs:
           cache: true
 
       - name: Generate Android runner
-        run: flutter create --platforms=android --org com.vastusign --project-name vastusign .
+        run: |
+          flutter create --platforms=android --org com.vastusign --project-name vastusign .
+          rm -f test/widget_test.dart
 
       - name: Apply Android production settings
         run: python3 tool/prepare_android.py
