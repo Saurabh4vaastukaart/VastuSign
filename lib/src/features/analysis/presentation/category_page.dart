@@ -89,7 +89,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 1.08,
+                childAspectRatio: 0.76,
               ),
               itemBuilder: (context, index) {
                 final category = filtered[index];
@@ -221,4 +221,3 @@ class _CategoryCard extends StatelessWidget {
     );
   }
 }
-
