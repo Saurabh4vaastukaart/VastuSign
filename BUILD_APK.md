@@ -16,7 +16,8 @@ permissions, runs tests, and builds a release APK.
 
 ## Local build
 
-Install Flutter 3.35.4 and Java 17, then run from the project root:
+Install the current stable Flutter release with Dart 3.10+ and Java 17, then
+run from the project root:
 
 ```bash
 flutter create --platforms=android --org com.vastusign --project-name vastusign .
