@@ -4,63 +4,31 @@ on:
   push:
     paths:
       - .github/workflows/capture_screenshots.yml
+      - test/screenshot_test.dart
   workflow_dispatch:
 
 jobs:
   screenshots:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: "17"
 
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      - name: Build debug APK
+      - name: Render production widgets
         run: |
-          flutter create --platforms=android --org com.vastusign --project-name vastusign .
-          rm -f test/widget_test.dart
-          python3 tool/prepare_android.py
           flutter pub get
-          flutter build apk --debug
-
-      - name: Launch app and capture screens
-        uses: ReactiveCircus/android-emulator-runner@v2
-        with:
-          api-level: 33
-          arch: x86_64
-          profile: pixel_2
-          disable-animations: false
-          script: |
-            mkdir -p screenshots
-            adb install -r build/app/outputs/flutter-apk/app-debug.apk
-            adb shell am force-stop com.vastusign.vastusign
-            adb shell am start -n com.vastusign.vastusign/.MainActivity
-            sleep 1
-            adb exec-out screencap -p > screenshots/00-splash.png
-            sleep 2
-            adb exec-out screencap -p > screenshots/01-onboarding-compass.png
-            adb shell input tap 540 1730
-            sleep 1
-            adb exec-out screencap -p > screenshots/02-onboarding-rooms.png
-            adb shell input tap 540 1730
-            sleep 1
-            adb exec-out screencap -p > screenshots/03-onboarding-report.png
-            adb shell input tap 540 1730
-            sleep 2
-            adb exec-out screencap -p > screenshots/04-home.png
+          mkdir -p test/goldens
+          flutter test --update-goldens test/screenshot_test.dart
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
           name: VastuSign-App-Screenshots
-          path: screenshots/*.png
+          path: test/goldens/*.png
           if-no-files-found: error
           retention-days: 30
