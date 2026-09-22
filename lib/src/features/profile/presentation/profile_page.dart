@@ -89,12 +89,11 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               SwitchListTile.adaptive(
                 value: _trueNorth,
-                enabled: false,
                 activeThumbColor: AppColors.emerald,
                 title: const Text('Prefer True North (coming soon)'),
                 subtitle: const Text('Requires verified location-based magnetic declination.'),
                 secondary: const Icon(Icons.explore_outlined),
-                onChanged: (value) => setState(() => _trueNorth = value),
+                onChanged: null,
               ),
               _SettingsTile(
                 icon: Icons.tune_rounded,
@@ -419,8 +418,3 @@ class _SettingsTile extends StatelessWidget {
       leading: Icon(icon, color: AppColors.gold),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right_rounded),
-      onTap: onTap,
-    );
-  }
-}
