@@ -23,6 +23,8 @@ jobs:
 
       - name: Render production widgets
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-core
           flutter pub get
           mkdir -p test/goldens
           flutter test --update-goldens test/screenshot_test.dart
