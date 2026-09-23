@@ -210,7 +210,7 @@ class _AnalysisHero extends StatelessWidget {
                       Icon(Icons.sensors_rounded, size: 15, color: AppColors.emerald),
                       SizedBox(width: 6),
                       Text(
-                        'ANALYSIS READY',
+                        'READY',
                         style: TextStyle(
                           color: AppColors.emerald,
                           fontSize: 11,
@@ -321,7 +321,7 @@ class _QuickActionGrid extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 1.25,
+        childAspectRatio: 0.92,
       ),
       itemBuilder: (context, index) {
         final action = actions[index];
