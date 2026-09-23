@@ -22,22 +22,41 @@ Future<ThemeData> loadScreenshotTheme() async {
   const boldFontPath =
       '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
 
-  Future<ByteData> fontBytes(String path) async {
-    final bytes = await File(path).readAsBytes();
-    return ByteData.sublistView(bytes);
+  Future<ByteData> fontBytes(String path) {
+    final bytes = File(path).readAsBytesSync();
+    return Future<ByteData>.value(ByteData.sublistView(bytes));
   }
 
   final textFontLoader = FontLoader('VastuScreenshotSans')
     ..addFont(fontBytes(regularFontPath))
     ..addFont(fontBytes(boldFontPath));
-  await textFontLoader.load();
+  await textFontLoader.load().timeout(const Duration(seconds: 15));
 
   // Material icons are present in the test asset bundle, but widget tests do
   // not load them automatically. Loading them here avoids tofu squares in the
   // generated screenshots.
+  String? materialIconsPath =
+      Platform.environment['VASTUSIGN_MATERIAL_ICONS_FONT'];
+  var searchDirectory = File(Platform.resolvedExecutable).parent;
+  for (var index = 0;
+      (materialIconsPath == null || materialIconsPath.isEmpty) && index < 8;
+      index += 1) {
+    final candidate = File(
+      '${searchDirectory.path}/bin/cache/artifacts/material_fonts/'
+      'MaterialIcons-Regular.otf',
+    );
+    if (candidate.existsSync()) {
+      materialIconsPath = candidate.path;
+      break;
+    }
+    searchDirectory = searchDirectory.parent;
+  }
+  if (materialIconsPath == null || materialIconsPath.isEmpty) {
+    throw StateError('VASTUSIGN_MATERIAL_ICONS_FONT is not configured.');
+  }
   final iconFontLoader = FontLoader('MaterialIcons')
-    ..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'));
-  await iconFontLoader.load();
+    ..addFont(fontBytes(materialIconsPath));
+  await iconFontLoader.load().timeout(const Duration(seconds: 15));
 
   final base = AppTheme.light;
   return base.copyWith(
