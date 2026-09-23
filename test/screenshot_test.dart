@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,6 +20,10 @@ Future<ThemeData> loadScreenshotTheme() async {
       '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
   const boldFontPath =
       '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
+  const devanagariFontPath =
+      '/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf';
+  const devanagariBoldFontPath =
+      '/usr/share/fonts/truetype/noto/NotoSansDevanagari-Bold.ttf';
 
   Future<ByteData> fontBytes(String path) {
     final bytes = File(path).readAsBytesSync();
@@ -31,6 +34,20 @@ Future<ThemeData> loadScreenshotTheme() async {
     ..addFont(fontBytes(regularFontPath))
     ..addFont(fontBytes(boldFontPath));
   await textFontLoader.load().timeout(const Duration(seconds: 15));
+
+  final devanagariFontLoader = FontLoader('VastuScreenshotDevanagari');
+  var hasDevanagariFont = false;
+  for (final path in [devanagariFontPath, devanagariBoldFontPath]) {
+    if (File(path).existsSync()) {
+      devanagariFontLoader.addFont(fontBytes(path));
+      hasDevanagariFont = true;
+    }
+  }
+  if (hasDevanagariFont) {
+    await devanagariFontLoader
+        .load()
+        .timeout(const Duration(seconds: 15));
+  }
 
   // Material icons are present in the test asset bundle, but widget tests do
   // not load them automatically. Loading them here avoids tofu squares in the
@@ -60,9 +77,14 @@ Future<ThemeData> loadScreenshotTheme() async {
 
   final base = AppTheme.light;
   return base.copyWith(
-    textTheme: base.textTheme.apply(fontFamily: 'VastuScreenshotSans'),
-    primaryTextTheme:
-        base.primaryTextTheme.apply(fontFamily: 'VastuScreenshotSans'),
+    textTheme: base.textTheme.apply(
+      fontFamily: 'VastuScreenshotSans',
+      fontFamilyFallback: const ['VastuScreenshotDevanagari'],
+    ),
+    primaryTextTheme: base.primaryTextTheme.apply(
+      fontFamily: 'VastuScreenshotSans',
+      fontFamilyFallback: const ['VastuScreenshotDevanagari'],
+    ),
   );
 }
 
@@ -133,5 +155,5 @@ void main() {
       find.byType(MaterialApp),
       matchesGoldenFile('goldens/05-categories.png'),
     );
-  });
+  }, tags: 'screenshot');
 }
