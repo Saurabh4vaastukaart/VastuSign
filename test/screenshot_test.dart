@@ -33,7 +33,8 @@ void main() {
   });
 
   testWidgets('capture representative VastuSign screens', (tester) async {
-    tester.view.physicalSize = const Size(1080, 2160);
+    // A modern 20:9 Android viewport (432 x 960 logical pixels at 3x).
+    tester.view.physicalSize = const Size(1296, 2880);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
