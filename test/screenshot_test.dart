@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vastusign/src/core/theme/app_theme.dart';
 import 'package:vastusign/src/features/analysis/application/analysis_controller.dart';
@@ -12,7 +16,38 @@ class ScreenshotAnalysisController extends AnalysisController {
   AnalysisState build() => const AnalysisState();
 }
 
-Widget screenshotApp(Widget child) {
+Future<ThemeData> loadScreenshotTheme() async {
+  const regularFontPath =
+      '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
+  const boldFontPath =
+      '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
+
+  Future<ByteData> fontBytes(String path) async {
+    final bytes = await File(path).readAsBytes();
+    return ByteData.sublistView(bytes);
+  }
+
+  final textFontLoader = FontLoader('VastuScreenshotSans')
+    ..addFont(fontBytes(regularFontPath))
+    ..addFont(fontBytes(boldFontPath));
+  await textFontLoader.load();
+
+  // Material icons are present in the test asset bundle, but widget tests do
+  // not load them automatically. Loading them here avoids tofu squares in the
+  // generated screenshots.
+  final iconFontLoader = FontLoader('MaterialIcons')
+    ..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'));
+  await iconFontLoader.load();
+
+  final base = AppTheme.light;
+  return base.copyWith(
+    textTheme: base.textTheme.apply(fontFamily: 'VastuScreenshotSans'),
+    primaryTextTheme:
+        base.primaryTextTheme.apply(fontFamily: 'VastuScreenshotSans'),
+  );
+}
+
+Widget screenshotApp(Widget child, ThemeData theme) {
   return ProviderScope(
     overrides: [
       analysisControllerProvider.overrideWith(
@@ -21,7 +56,7 @@ Widget screenshotApp(Widget child) {
     ],
     child: MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
+      theme: theme,
       home: child,
     ),
   );
@@ -39,7 +74,11 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(screenshotApp(const OnboardingPage()));
+    final screenshotTheme = await loadScreenshotTheme();
+
+    await tester.pumpWidget(
+      screenshotApp(const OnboardingPage(), screenshotTheme),
+    );
     await tester.pumpAndSettle();
     await expectLater(
       find.byType(MaterialApp),
@@ -60,14 +99,16 @@ void main() {
       matchesGoldenFile('goldens/03-onboarding-report.png'),
     );
 
-    await tester.pumpWidget(screenshotApp(const HomePage()));
+    await tester.pumpWidget(screenshotApp(const HomePage(), screenshotTheme));
     await tester.pumpAndSettle();
     await expectLater(
       find.byType(MaterialApp),
       matchesGoldenFile('goldens/04-home.png'),
     );
 
-    await tester.pumpWidget(screenshotApp(const CategoryPage()));
+    await tester.pumpWidget(
+      screenshotApp(const CategoryPage(), screenshotTheme),
+    );
     await tester.pumpAndSettle();
     await expectLater(
       find.byType(MaterialApp),
